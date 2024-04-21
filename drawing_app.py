@@ -22,7 +22,6 @@ class DrawingApp:
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
 
-
     def setup_ui(self):
         control_frame = tk.Frame(self.root)
         control_frame.pack(fill=tk.X)
@@ -36,8 +35,17 @@ class DrawingApp:
         save_button = tk.Button(control_frame, text="Сохранить", command=self.save_image)
         save_button.pack(side=tk.LEFT)
 
+        sizes = [br for br in range(1, 11)]
+        self.brush_size = tk.StringVar(self.root)
+        self.brush_size.set('Выбор кисти')
+        brush_size_menu = tk.OptionMenu(control_frame,
+                                        self.brush_size,
+                                        *sizes,
+                                        command=self.change_size_brush)
+        brush_size_menu.pack(side=tk.LEFT, expand=True)
+
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
-        self.brush_size_scale.pack(side=tk.LEFT)
+        self.brush_size_scale.pack(side=tk.RIGHT)
 
     def paint(self, event):
         if self.last_x and self.last_y:
@@ -49,6 +57,9 @@ class DrawingApp:
 
         self.last_x = event.x
         self.last_y = event.y
+
+    def change_size_brush(self, size):
+        self.brush_size_scale.set(size)
 
     def reset(self, event):
         self.last_x, self.last_y = None, None
