@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 
 
 class DrawingApp:
-    def __init__(self, root):
+    def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Рисовалка с сохранением в PNG")
 
@@ -24,37 +24,21 @@ class DrawingApp:
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         control_frame = tk.Frame(self.root)
         control_frame.pack(fill=tk.X)
 
-        clear_button = tk.Button(control_frame, text="Очистить", command=self.clear_canvas)
-        clear_button.pack(side=tk.LEFT)
-
-        color_button = tk.Button(control_frame, text="Выбрать цвет", command=self.choose_color)
-        color_button.pack(side=tk.LEFT)
-
-        save_button = tk.Button(control_frame, text="Сохранить", command=self.save_image)
-        save_button.pack(side=tk.LEFT)
-
-        # brush_button = (tk.Button(control_frame, text="Размер кисти",command=self.brush))
-        # brush_button.pack(side=tk.LEFT)
+        self.make_button(control_frame, "Очистить", self.clear_canvas)
+        self.make_button(control_frame, "Выбрать цвет", self.choose_color)
+        self.make_button(control_frame, "Сохранить", self.save_image)
 
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.RIGHT)
 
-        sizes = [br for br in range(1, 11)]
-        self.brush_size = tk.StringVar(self.root)
-        self.brush_size.set(f'Размер кисти-1')
-        brush_size_menu = tk.OptionMenu(control_frame,
-                                        self.brush_size,
-                                        *sizes,
-                                        command=self.change_size_brush)
-        brush_size_menu.pack(side=tk.RIGHT)
+        self.brush(control_frame)
 
-
-
-    def paint(self, event):
+    def paint(self, event: tk.Event) -> None:
+        """Метод получения координат нажатой кнопки из event и рисования"""
         if self.last_x and self.last_y:
             self.canvas.create_line(self.last_x, self.last_y, event.x, event.y,
                                     width=self.brush_size_scale.get(), fill=self.pen_color,
@@ -65,28 +49,48 @@ class DrawingApp:
         self.last_x = event.x
         self.last_y = event.y
 
-    def draw_label(self):
+    def draw_label(self) -> None:
         self.lbl = tk.Label(master=self.root, text="Hello").pack()
 
-    # def brush(self):
-    #     pass
+    def make_button(self, control_frame: tk.Frame, text: str, command) -> None:
+        """Метод создает кнопку"""
+        print(type(command))
+        clear_button = tk.Button(master=control_frame, text=text, command=command)
+        clear_button.pack(side=tk.LEFT)
 
-    def change_size_brush(self, size):
+    def brush(self, control_frame: tk.Frame) -> None:
+        """Метод создания открывающегося меню выбора толщины кисти.
+        не явно переводит *sizes в строку из чисел для метода command="""
+        sizes = [br for br in range(1, 11)]
+        self.brush_size = tk.StringVar(self.root)
+        self.brush_size.set(f'Размер кисти-{self.brush_size_scale.get()}')
+        brush_size_menu = tk.OptionMenu(control_frame,
+                                        self.brush_size,
+                                        *sizes,
+                                        command=self.change_size_brush)
+        brush_size_menu.pack(side=tk.RIGHT)
+
+    def change_size_brush(self, size) -> None:
+        """Метод выбора размера кисти, принимает size: int"""
         self.brush_size_scale.set(size)
         self.brush_size.set(f'Размер кисти-{size}')
 
-    def reset(self, event):
+    def reset(self, event) -> None:
+        """Метод отпускания кнопки снимает статус координат 'event' не используется"""
         self.last_x, self.last_y = None, None
 
-    def clear_canvas(self):
+    def clear_canvas(self) -> None:
+        """Метод очистки экрана"""
         self.canvas.delete("all")
         self.image = Image.new("RGB", (1000, 600), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self):
+    def choose_color(self) -> None:
+        """Метод вывода экрана выбора цвета"""
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
 
-    def save_image(self):
+    def save_image(self) -> None:
+        """Метод сохранения рисунка в файл.png"""
         file_path = filedialog.asksaveasfilename(filetypes=[('PNG files', '*.png')])
         if file_path:
             if not file_path.endswith('.png'):
