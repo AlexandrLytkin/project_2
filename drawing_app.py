@@ -25,6 +25,7 @@ class DrawingApp:
         self.canvas.bind('<ButtonRelease-1>', self.reset)
 
     def setup_ui(self) -> None:
+        """Метод рисует прямоугольник, добавляет на него кнопки управления"""
         control_frame = tk.Frame(self.root)
         control_frame.pack(fill=tk.X)
 
