@@ -8,10 +8,12 @@ class DrawingApp:
         self.root = root
         self.root.title("Рисовалка с сохранением в PNG")
 
-        self.image = Image.new("RGB", (600, 400), "white")
+        self.draw_label()
+
+        self.image = Image.new("RGB", (1000, 600), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-        self.canvas = tk.Canvas(root, width=600, height=400, bg='white')
+        self.canvas = tk.Canvas(root, width=1000, height=600, bg='white')
         self.canvas.pack()
 
         self.setup_ui()
@@ -35,17 +37,22 @@ class DrawingApp:
         save_button = tk.Button(control_frame, text="Сохранить", command=self.save_image)
         save_button.pack(side=tk.LEFT)
 
+        # brush_button = (tk.Button(control_frame, text="Размер кисти",command=self.brush))
+        # brush_button.pack(side=tk.LEFT)
+
+        self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
+        self.brush_size_scale.pack(side=tk.RIGHT)
+
         sizes = [br for br in range(1, 11)]
         self.brush_size = tk.StringVar(self.root)
-        self.brush_size.set('Выбор кисти')
+        self.brush_size.set(f'Размер кисти-1')
         brush_size_menu = tk.OptionMenu(control_frame,
                                         self.brush_size,
                                         *sizes,
                                         command=self.change_size_brush)
-        brush_size_menu.pack(side=tk.LEFT, expand=True)
+        brush_size_menu.pack(side=tk.RIGHT)
 
-        self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
-        self.brush_size_scale.pack(side=tk.RIGHT)
+
 
     def paint(self, event):
         if self.last_x and self.last_y:
@@ -58,15 +65,22 @@ class DrawingApp:
         self.last_x = event.x
         self.last_y = event.y
 
+    def draw_label(self):
+        self.lbl = tk.Label(master=self.root, text="Hello").pack()
+
+    # def brush(self):
+    #     pass
+
     def change_size_brush(self, size):
         self.brush_size_scale.set(size)
+        self.brush_size.set(f'Размер кисти-{size}')
 
     def reset(self, event):
         self.last_x, self.last_y = None, None
 
     def clear_canvas(self):
         self.canvas.delete("all")
-        self.image = Image.new("RGB", (600, 400), "white")
+        self.image = Image.new("RGB", (1000, 600), "white")
         self.draw = ImageDraw.Draw(self.image)
 
     def choose_color(self):
