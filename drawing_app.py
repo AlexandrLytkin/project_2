@@ -20,6 +20,7 @@ class DrawingApp:
 
         self.last_x, self.last_y = None, None
         self.pen_color = 'black'
+        self.current_color = None
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
@@ -32,6 +33,7 @@ class DrawingApp:
         self.make_button(control_frame, "Очистить", self.clear_canvas)
         self.make_button(control_frame, "Выбрать цвет", self.choose_color)
         self.make_button(control_frame, "Сохранить", self.save_image)
+        self.make_button(control_frame, "Ластик", self.rubber)
 
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.RIGHT)
@@ -54,14 +56,27 @@ class DrawingApp:
         self.lbl = tk.Label(master=self.root, text="Hello").pack()
 
     def make_button(self, control_frame: tk.Frame, text: str, command) -> None:
-        """Метод создает кнопку"""
-        print(type(command))
+        """Метод создает кнопку
+        Сохраняем ссылку на последнюю созданную кнопку"""
         clear_button = tk.Button(master=control_frame, text=text, command=command)
         clear_button.pack(side=tk.LEFT)
+        self.last_button = clear_button
+
+    def rubber(self) -> None:
+        """Метод ластик.
+        Стирает нарисованные объекты и переключается на последний цвет"""
+        if self.current_color:
+            self.pen_color = self.current_color
+            self.current_color = None
+            self.last_button.configure(text='Ластик')
+        else:
+            self.current_color = self.pen_color
+            self.pen_color = 'white'
+            self.last_button.configure(text='Кисть')
 
     def brush(self, control_frame: tk.Frame) -> None:
         """Метод создания открывающегося меню выбора толщины кисти.
-        не явно переводит *sizes в строку из чисел для метода command="""
+        Не явно переводит *sizes в строку из чисел для метода command="""
         sizes = [br for br in range(1, 11)]
         self.brush_size = tk.StringVar(self.root)
         self.brush_size.set(f'Размер кисти-{self.brush_size_scale.get()}')
@@ -75,6 +90,7 @@ class DrawingApp:
         """Метод выбора размера кисти, принимает size: int"""
         self.brush_size_scale.set(size)
         self.brush_size.set(f'Размер кисти-{size}')
+        print(type(self.brush_size))
 
     def reset(self, event) -> None:
         """Метод отпускания кнопки снимает статус координат 'event' не используется"""
