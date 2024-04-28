@@ -24,6 +24,7 @@ class DrawingApp:
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
+        self.canvas.bind('<Button-3>', self.pick_color)
 
     def setup_ui(self) -> None:
         """Метод рисует прямоугольник, добавляет на него кнопки управления"""
@@ -54,6 +55,13 @@ class DrawingApp:
 
     def draw_label(self) -> None:
         self.lbl = tk.Label(master=self.root, text="Hello").pack()
+
+    def pick_color(self, event: tk.Event) -> None:
+        """Метод пипетка для выбора цвета с холста
+        Выбор цвета кисти нажатием на среднюю (3-button) мыши
+        Перевод RGB цвета в HEX код цвета"""
+        color = self.image.getpixel((event.x, event.y))
+        self.pen_color = f'#{color[0]:02x}{color[1]:02x}{color[2]:02x}'
 
     def make_button(self, control_frame: tk.Frame, text: str, command) -> None:
         """Метод создает кнопку
@@ -90,7 +98,6 @@ class DrawingApp:
         """Метод выбора размера кисти, принимает size: int"""
         self.brush_size_scale.set(size)
         self.brush_size.set(f'Размер кисти-{size}')
-        print(type(self.brush_size))
 
     def reset(self, event) -> None:
         """Метод отпускания кнопки снимает статус координат 'event' не используется"""
