@@ -25,6 +25,8 @@ class DrawingApp:
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
         self.canvas.bind('<Button-3>', self.pick_color)
+        self.root.bind('<Control-s>', self.save_image)
+        self.root.bind('<Control-c>', self.choose_color)
 
     def setup_ui(self) -> None:
         """Метод рисует прямоугольник, добавляет на него кнопки управления"""
@@ -109,11 +111,11 @@ class DrawingApp:
         self.image = Image.new("RGB", (1000, 600), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self) -> None:
+    def choose_color(self, event: tk.Event = None) -> None:
         """Метод вывода экрана выбора цвета"""
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
 
-    def save_image(self) -> None:
+    def save_image(self, event: tk.Event = None) -> None:
         """Метод сохранения рисунка в файл.png"""
         file_path = filedialog.asksaveasfilename(filetypes=[('PNG files', '*.png')])
         if file_path:
