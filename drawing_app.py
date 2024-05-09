@@ -8,6 +8,8 @@ class DrawingApp:
         self.root = root
         self.root.title("Рисовалка с сохранением в PNG")
 
+        self.pen_color = 'black'
+        self.current_color = None
         self.draw_label()
 
         self.image = Image.new("RGB", (1000, 600), "white")
@@ -19,8 +21,8 @@ class DrawingApp:
         self.setup_ui()
 
         self.last_x, self.last_y = None, None
-        self.pen_color = 'black'
-        self.current_color = None
+
+        self.window_color_of_brush()
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
@@ -56,7 +58,17 @@ class DrawingApp:
         self.last_y = event.y
 
     def draw_label(self) -> None:
-        self.lbl = tk.Label(master=self.root, text="Hello").pack()
+        self.lbl = (tk.Label(master=self.root, text="Цвет кисти", bg=self.pen_color))
+        self.lbl.pack()
+
+    def window_color_of_brush(self):
+        self.canvas1 = tk.Canvas(self.root, width=50, height=20, bg=self.pen_color, )
+        self.canvas1.configure(bg=self.pen_color)
+        self.canvas1.pack()
+
+    def show_current_color(self):
+        self.canvas1.configure(bg=self.pen_color)
+        self.lbl.configure(bg=self.pen_color)
 
     def pick_color(self, event: tk.Event) -> None:
         """Метод пипетка для выбора цвета с холста
@@ -64,6 +76,7 @@ class DrawingApp:
         Перевод RGB цвета в HEX код цвета"""
         color = self.image.getpixel((event.x, event.y))
         self.pen_color = f'#{color[0]:02x}{color[1]:02x}{color[2]:02x}'
+        self.show_current_color()
 
     def make_button(self, control_frame: tk.Frame, text: str, command) -> None:
         """Метод создает кнопку
@@ -83,6 +96,7 @@ class DrawingApp:
             self.current_color = self.pen_color
             self.pen_color = 'white'
             self.last_button.configure(text='Кисть')
+        self.show_current_color()
 
     def brush(self, control_frame: tk.Frame) -> None:
         """Метод создания открывающегося меню выбора толщины кисти.
@@ -114,6 +128,7 @@ class DrawingApp:
     def choose_color(self, event: tk.Event = None) -> None:
         """Метод вывода экрана выбора цвета"""
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        self.show_current_color()
 
     def save_image(self, event: tk.Event = None) -> None:
         """Метод сохранения рисунка в файл.png"""
