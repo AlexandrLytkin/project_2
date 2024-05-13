@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog, messagebox
+from tkinter import colorchooser, filedialog, messagebox, simpledialog
 from PIL import Image, ImageDraw
 
 
@@ -11,11 +11,11 @@ class DrawingApp:
         self.pen_color = 'black'
         self.current_color = None
         self.draw_label()
-
-        self.image = Image.new("RGB", (1000, 600), "white")
+        self.wight, self.height = 1000, 600
+        self.image = Image.new("RGB", (self.wight, self.height), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-        self.canvas = tk.Canvas(root, width=1000, height=600, bg='white')
+        self.canvas = tk.Canvas(root, width=self.wight, height=self.height, bg='white')
         self.canvas.pack()
 
         self.setup_ui()
@@ -39,6 +39,7 @@ class DrawingApp:
         self.make_button(control_frame, "Выбрать цвет", self.choose_color)
         self.make_button(control_frame, "Сохранить", self.save_image)
         self.make_button(control_frame, "Ластик", self.rubber)
+        self.make_button(control_frame, "Размера холста", self.resizing_the_canvas)
 
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.RIGHT)
@@ -58,15 +59,19 @@ class DrawingApp:
         self.last_y = event.y
 
     def draw_label(self) -> None:
-        self.lbl = (tk.Label(master=self.root, text="Цвет кисти", bg=self.pen_color))
+        """Метод пишет лейбл 'цвет кисти'"""
+        text_color = 'black' if self.pen_color == 'white' else 'white'
+        self.lbl = tk.Label(master=self.root, text="Цвет кисти", bg=self.pen_color, fg=text_color)
         self.lbl.pack()
 
-    def window_color_of_brush(self):
+    def window_color_of_brush(self) -> None:
+        """Метод показывает текущий цвет кисти в отдельном окне"""
         self.canvas1 = tk.Canvas(self.root, width=50, height=20, bg=self.pen_color, )
         self.canvas1.configure(bg=self.pen_color)
         self.canvas1.pack()
 
-    def show_current_color(self):
+    def show_current_color(self) -> None:
+        """Метод показывает текущий цвет кисти"""
         self.canvas1.configure(bg=self.pen_color)
         self.lbl.configure(bg=self.pen_color)
 
@@ -79,7 +84,7 @@ class DrawingApp:
         self.show_current_color()
 
     def make_button(self, control_frame: tk.Frame, text: str, command) -> None:
-        """Метод создает кнопку
+        """Метод создает кнопку.
         Сохраняем ссылку на последнюю созданную кнопку"""
         clear_button = tk.Button(master=control_frame, text=text, command=command)
         clear_button.pack(side=tk.LEFT)
@@ -122,13 +127,36 @@ class DrawingApp:
     def clear_canvas(self) -> None:
         """Метод очистки экрана"""
         self.canvas.delete("all")
-        self.image = Image.new("RGB", (1000, 600), "white")
+        self.image = Image.new("RGB", (self.wight, self.height), "white")
         self.draw = ImageDraw.Draw(self.image)
 
     def choose_color(self, event: tk.Event = None) -> None:
         """Метод вывода экрана выбора цвета"""
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         self.show_current_color()
+
+    def resizing_the_canvas(self, event: tk.Event = None):
+        """Метод изменения размера экрана.
+        Проверяем согласие и только потом меняем размеры ширины и высоты"""
+        agree = simpledialog.askstring(f'Вы уверены текущий рисунок пропадет',
+                                       prompt='Напишите Согласен',
+                                       initialvalue='Согласен')
+        if agree == 'Согласен':
+            wight = simpledialog.askinteger(f'Текущий размер холста {self.wight}x{self.height}',
+                                            prompt='Введите ширину холста', minvalue=50, maxvalue=1500,
+                                            initialvalue=self.wight)
+            if wight:
+                self.wight = wight
+            self.canvas.config(width=self.wight, height=self.height)
+
+            height = simpledialog.askinteger(f'Текущий размер холста {self.wight}x{self.height}',
+                                             prompt='Введите высоту холста', minvalue=50, maxvalue=700,
+                                             initialvalue=self.height)
+            if height:
+                self.height = height
+            self.canvas.config(width=self.wight, height=self.height)
+
+            self.clear_canvas()
 
     def save_image(self, event: tk.Event = None) -> None:
         """Метод сохранения рисунка в файл.png"""
