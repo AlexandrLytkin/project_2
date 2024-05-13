@@ -135,7 +135,7 @@ class DrawingApp:
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         self.show_current_color()
 
-    def resizing_the_canvas(self, event: tk.Event = None):
+    def resizing_the_canvas(self, event: tk.Event = None) -> None:
         """Метод изменения размера экрана.
         Проверяем согласие и только потом меняем размеры ширины и высоты"""
         agree = simpledialog.askstring(f'Вы уверены текущий рисунок пропадет',
