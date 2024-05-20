@@ -29,6 +29,12 @@ class DrawingApp:
         self.canvas.bind('<Button-3>', self.pick_color)
         self.root.bind('<Control-s>', self.save_image)
         self.root.bind('<Control-c>', self.choose_color)
+        self.canvas.bind('<Button-1>', self.get_canvas_click_position)
+
+        self.background = 'white'
+        self.size_text = 12
+        self.x_pos = int(self.wight // 2)
+        self.y_pos = int(self.height // 2)
 
     def setup_ui(self) -> None:
         """Метод рисует прямоугольник, добавляет на него кнопки управления"""
@@ -38,8 +44,10 @@ class DrawingApp:
         self.make_button(control_frame, "Очистить", self.clear_canvas)
         self.make_button(control_frame, "Выбрать цвет", self.choose_color)
         self.make_button(control_frame, "Сохранить", self.save_image)
-        self.make_button(control_frame, "Ластик", self.rubber)
         self.make_button(control_frame, "Размера холста", self.resizing_the_canvas)
+        self.make_button(control_frame, "Текст", self.add_text)
+        self.make_button(control_frame, "Изменить фон", self.change_canvas_color)
+        self.make_button(control_frame, "Ластик", self.rubber)
 
         self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         self.brush_size_scale.pack(side=tk.RIGHT)
@@ -99,7 +107,8 @@ class DrawingApp:
             self.last_button.configure(text='Ластик')
         else:
             self.current_color = self.pen_color
-            self.pen_color = 'white'
+            # self.pen_color = 'white'
+            self.pen_color = self.background
             self.last_button.configure(text='Кисть')
         self.show_current_color()
 
@@ -157,6 +166,26 @@ class DrawingApp:
             self.canvas.config(width=self.wight, height=self.height)
 
             self.clear_canvas()
+
+    def get_canvas_click_position(self, event: tk.Event = None):
+        self.x_pos = event.x
+        self.y_pos = event.y
+
+    def add_text(self):
+        """Метод добавления текста на изображение"""
+        some_text = tk.simpledialog.askstring(f'Цвет текста в цвет кисти: {self.pen_color}',
+                                              f'Координаты текста {self.x_pos}x{self.y_pos}\nВведите текст:')
+        size_text = tk.simpledialog.askinteger('Выбери размер шрифта',
+                                               prompt=f'Текущий размер шрифта {self.size_text}\nВведи число:')
+        if some_text and size_text:
+            x, y = self.x_pos, self.y_pos
+            self.draw.text((x, y), some_text, fill=self.pen_color)
+            self.canvas.create_text(x, y, text=some_text, font=("Arial", size_text), fill=self.pen_color)
+
+    def change_canvas_color(self) -> None:
+        """Метод изменения цвета фона холста"""
+        self.background = colorchooser.askcolor()[1]
+        self.canvas.config(background=self.background)
 
     def save_image(self, event: tk.Event = None) -> None:
         """Метод сохранения рисунка в файл.png"""
